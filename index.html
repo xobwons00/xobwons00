@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상황별 맞춤 코디 추천 - LookFit</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+        }
+
+        body {
+            background-color: #f5f6f8;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            margin-top: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group select:focus {
+            border-color: #3498db;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #2980b9;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px dashed #eee;
+            display: none;
+        }
+
+        .result-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .result-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .result-card ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .result-card li {
+            padding: 6px 0;
+            font-size: 1rem;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .result-card li::before {
+            content: "•";
+            color: #3498db;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .tip-box {
+            margin-top: 15px;
+            background-color: #e8f4fc;
+            padding: 12px 15px;
+            border-radius: 6px;
+            color: #2980b9;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>✨ 오늘의 코디 추천 (LookFit)</h1>
+        <p>상황과 날씨에 꼭 맞는 스타일을 추천해 드립니다.</p>
+    </header>
+
+    <main class="container">
+        <form id="recommendForm">
+            <!-- 성별 선택 -->
+            <div class="form-group">
+                <label for="gender">성별</label>
+                <select id="gender" required>
+                    <option value="male">남성</option>
+                    <option value="female">여성</option>
+                </select>
+            </div>
+
+            <!-- 상황 선택 -->
+            <div class="form-group">
+                <label for="situation">상황 (TPO)</label>
+                <select id="situation" required>
+                    <option value="interview">면접 / 비즈니스</option>
+                    <option value="date">데이트 / 소개팅</option>
+                    <option value="casual">친구 모임 / 카페</option>
+                    <option value="workout">운동 / 야외 활동</option>
+                    <option value="wedding">결혼식 하객</option>
+                </select>
+            </div>
+
+            <!-- 날씨 선택 -->
+            <div class="form-group">
+                <label for="weather">날씨</label>
+                <select id="weather" required>
+                    <option value="hot">더운 날 (여름)</option>
+                    <option value="mild">선선한 날 (봄/가을)</option>
+                    <option value="cold">추운 날 (겨울)</option>
+                    <option value="rain">비 오는 날</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-submit">추천 코디 보기</button>
+        </form>
+
+        <!-- 결과 출력 영역 -->
+        <section id="resultSection" class="result-section">
+            <h2>💡 추천 스타일링</h2>
+            <div class="result-card">
+                <h3 id="recommendTitle">추천 착장</h3>
+                <ul id="recommendList">
+                    <!-- JavaScript로 목록이 추가됨 -->
+                </ul>
+                <div id="tipBox" class="tip-box">
+                    <!-- 스타일링 팁이 추가됨 -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 추천 데이터베이스 (간단한 예시 데이터)
+        const outfitDatabase = {
+            interview: {
+                hot: {
+                    items: ["린넨 믹스 셋업 슈트 (네이비/찰콜)", "반팔 드레스 셔츠 또는 니트 셔츠", "로퍼 또는 깔끔한 가죽 더비슈즈"],
+                    tip: "여름 면접은 얇은 소재의 반안감 슈트를 선택해 쾌적함과 정중함을 모두 챙기세요."
+                },
+                mild: {
+                    items: ["다크 네이비 / 딥 그레이 기본 슈트", "화이트 셔츠", "가죽 더비슈즈 / 옥스퍼드화", "깔끔한 타이"],
+                    tip: "가장 클래식한 조합입니다. 구김이 잘 가지 않는 소재를 고르는 것이 좋습니다."
+                },
+                cold: {
+                    items: ["울 소재의 체스터필드 코트", "드레스 슈트 및 셔츠", "깔끔한 가죽 드레스 슈즈"],
+                    tip: "패딩보다는 모던하고 단정한 싱글 울 코트를 외투로 착용하는 것을 추천합니다."
+                },
+                rain: {
+                    items: ["방수 기능성 단정한 트렌치코트", "셋업 슈트", "가죽 방수 스프레이를 뿌린 슈즈"],
+                    tip: "바지 밑단에 빗물이 튀지 않도록 기장을 너무 길지 않게 연출하세요."
+                }
+            },
+            date: {
+                hot: {
+                    items: ["반팔 카라 니트", "슬림핏 슬랙스 또는 하프 팬츠", "화이트 가죽 스니커즈"],
+                    tip: "과하게 짧은 반바지보다는 무릎 위 약간 올라오는 깔끔한 핏을 선택하세요."
+                },
+                mild: {
+                    items: ["오버핏 블루종 / 트래커 재킷", "라운드넥 옥스포드 셔츠", "크롭 슬랙스 / 테이퍼드 데님"],
+                    tip: "화사한 컬러감의 상의로 포인트를 주면 신뢰감을 주면서도 부드러운 인상을 만듭니다."
+                },
+                cold: {
+                    items: ["롱/쇼트 든든한 숏패딩 또는 울 코트", "터틀넥 니트", "크롭핏 슬랙스 / 첼시 부츠"],
+                    tip: "터틀넥과 코트의 조합은 따뜻하면서도 세련된 느낌을 줄 수 있습니다."
+                },
+                rain: {
+                    items: ["바람막이/나일론 재킷", "청바지(어두운 톤)", "어두운 톤의 스니커즈"],
+                    tip: "밝은색 바지는 빗물이 튈 수 있으니 어두운 데님이나 짙은 색 슬랙스를 입으세요."
+                }
+            },
+            casual: {
+                hot: {
+                    items: ["오버핏 티셔츠", "와이드 데님 팬츠 또는 숏팬츠", "편안한 샌들 / 캔버스화"],
+                    tip: "트렌디한 와이드 핏으로 스타일리시함을 더해보세요."
+                },
+                mild: {
+                    items: ["맨투맨 또는 후드티", "조거 팬츠 / 와이드 팬츠", "러닝화 / 러프한 스니커즈"],
+                    tip: "레이어드용 흰색 티셔츠를 밑단 밖으로 살짝 보이게 연출해 보세요."
+                },
+                cold: {
+                    items: ["헤비 웨이트 패딩", "기모 후드티", "데님 팬츠 / 워커"],
+                    tip: "보온성이 우수한 레이어드 룩을 추천합니다."
+                },
+                rain: {
+                    items: ["아노락 / 숏 바람막이", "방수 재질 쇼츠 / 나일론 팬츠", "레인부츠 또는 크록스류"],
+                    tip: "습도가 높으니 잘 마르는 나일론 재질의 의류가 좋습니다."
+                }
+            },
+            workout: {
+                hot: {
+                    items: ["기능성 드라이핏 반팔티", "트레이닝 쇼츠", "러닝화"],
+                    tip: "땀 흡수와 배출이 잘 되는 스포츠 웨어를 선택하세요."
+                },
+                mild: {
+                    items: ["기능성 긴팔티", "트레이닝 바지", "바람막이 아우터"],
+                    tip: "체온 조절을 위해 체온이 올라가면 벗을 수 있는 겉옷을 챙기세요."
+                },
+                cold: {
+                    items: ["방풍 플리스 또는 경량 패딩", "기모 트레이닝 팬츠", "장갑 및 비니"],
+                    tip: "야외 운동 시 관절을 보호할 수 있도록 따뜻하게 입어주세요."
+                },
+                rain: {
+                    items: ["방수 러닝 재킷", "기능성 숏팬츠", "러닝용 우의"],
+                    tip: "우천 시 야외 운동은 미끄러짐 위험이 있으니 신발 창의 그립감을 확인하세요."
+                }
+            },
+            wedding: {
+                hot: {
+                    items: ["시어서커 / 린넨 블레이저", "슬랙스", "로퍼 (노쇼 삭스)"],
+                    tip: "화이트 컬러 계열은 피하고, 톤 다운된 컬러로 예의를 갖추세요."
+                },
+                mild: {
+                    items: ["세미 오버핏 셋업 수트", "라운드 넥 얇은 니트", "더비 슈즈"],
+                    tip: "넥타이를 매지 않는 세미 포멀 스타일이 요즘 하객 룩의 트렌드입니다."
+                },
+                cold: {
+                    items: ["울 모직 슈트", "싱글 롱코트", "드레스 슈즈"],
+                    tip: "어두운 계열의 코트와 수트로 차분하고 격식 있는 분위기를 연출하세요."
+                },
+                rain: {
+                    items: ["다크 톤의 셋업 슈트", "단정한 우산", "가죽 슈즈 (방수 관리)"],
+                    tip: "바지 밑단이 젖는 것을 방지하기 위해 복숭아뼈 정도에 맞춘 핏을 추천합니다."
+                }
+            }
+        };
+
+        // 폼 제출 이벤트 처리
+        document.getElementById('recommendForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const situation = document.getElementById('situation').value;
+            const weather = document.getElementById('weather').value;
+
+            // 데이터 조회
+            const selectedData = outfitDatabase[situation]?.[weather];
+
+            if (selectedData) {
+                const listElement = document.getElementById('recommendList');
+                const tipElement = document.getElementById('tipBox');
+
+                // 이전 목록 초기화
+                listElement.innerHTML = '';
+
+                // 추천 아이템 목록 추가
+                selectedData.items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    listElement.appendChild(li);
+                });
+
+                // 팁 추가
+                tipElement.textContent = "💡 스타일링 팁: " + selectedData.tip;
+
+                // 결과 영역 표시
+                document.getElementById('resultSection').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
