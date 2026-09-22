@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 스마트 옷장 & 코디 추천</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f5f7fa; color: #333; padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 600px; width: 100%; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 20px; color: #2c3e50; }
+        
+        .form-group { margin-bottom: 18px; }
+        label { font-weight: bold; display: block; margin-bottom: 6px; font-size: 0.95rem; }
+        select, input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+        textarea { resize: vertical; height: 60px; }
+        
+        .row { display: flex; gap: 10px; }
+        .row .form-group { flex: 1; }
+
+        button { width: 100%; padding: 12px; background-color: #4A90E2; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { background-color: #357ABD; }
+
+        .result-box { margin-top: 25px; padding: 15px; border-radius: 8px; background: #eef5fc; border: 1px solid #cce1f8; display: none; }
+        .result-title { font-weight: bold; font-size: 1.1rem; color: #1a5276; margin-bottom: 10px; }
+        .tag { display: inline-block; background: #357ABD; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 5px; }
+        .item-list { margin-top: 10px; font-size: 0.95rem; line-height: 1.6; }
+        .add-item { color: #d9534f; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>👔 오늘 뭐 입지? (AI 코디 추천)</h1>
+    
+    <div class="row">
+        <div class="form-group">
+            <label for="gender">성별</label>
+            <select id="gender">
+                <option value="남성">남성</option>
+                <option value="여성">여성</option>
+                <option value="공용">공용/상관없음</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="weather">날씨</label>
+            <select id="weather">
+                <option value="더움">더움 (여름)</option>
+                <option value="쌀쌀함">쌀쌀함 (봄/가을)</option>
+                <option value="추움">추움 (겨울)</option>
+                <option value="비/눈">비 또는 눈</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="situation">상황 (TPO)</label>
+        <select id="situation">
+            <option value="출근/격식">출근 / 격식있는 자리</option>
+            <option value="데이트">데이트 / 약속</option>
+            <option value="운동/야외">운동 / 야외활동</option>
+            <option value="산책/편안함">집 앞 / 편안한 산책</option>
+        </select>
+    </div>
+
+    <hr style="margin: 20px 0; border: 0.5px solid #eee;">
+
+    <div class="form-group">
+        <label for="my-tops">내 상의 목록</label>
+        <input type="text" id="my-tops" placeholder="예: 흰색 반팔티, 검은색 셔츠, 맨투맨">
+    </div>
+
+    <div class="form-group">
+        <label for="my-bottoms">내 하의 목록</label>
+        <input type="text" id="my-bottoms" placeholder="예: 청바지, 슬랙스, 반바지">
+    </div>
+
+    <div class="form-group">
+        <label for="my-outer">내 아우터 / 기타</label>
+        <input type="text" id="my-outer" placeholder="예: 청자켓, 패딩, 운동화, 로퍼">
+    </div>
+
+    <button onclick="recommendOutfit()">맞춤 코디 추천받기</button>
+
+    <!-- 결과 창 -->
+    <div id="result" class="result-box">
+        <div class="result-title">💡 오늘의 추천 코디</div>
+        <div id="result-tags"></div>
+        <div class="item-list" id="result-content"></div>
+    </div>
+</div>
+
+<script>
+function recommendOutfit() {
+    const gender = document.getElementById('gender').value;
+    const weather = document.getElementById('weather').value;
+    const situation = document.getElementById('situation').value;
+
+    const tops = document.getElementById('my-tops').value;
+    const bottoms = document.getElementById('my-bottoms').value;
+    const outer = document.getElementById('my-outer').value;
+
+    // 태그 표시
+    const tagHtml = `<span class="tag">${gender}</span><span class="tag">${weather}</span><span class="tag">${situation}</span>`;
+    document.getElementById('result-tags').innerHTML = tagHtml;
+
+    // 간단한 예시 시뮬레이션 로직 (실제 서비스 구현 시 AI API 연동 부분)
+    let recommendation = "";
+    
+    if(tops || bottoms) {
+        recommendation += `<p><strong>[내 옷장에서 활용]</strong><br>`;
+        if(tops) recommendation += `• 상의: ${tops.split(',')[0]}<br>`;
+        if(bottoms) recommendation += `• 하의: ${bottoms.split(',')[0]}<br>`;
+        recommendation += `</p>`;
+    }
+
+    recommendation += `<p style="margin-top:10px;"><strong>[스타일 완성 매칭 조합]</strong><br>`;
+    recommendation += `• 추천 스타일: ${situation} 환경과 ${weather} 날씨에 맞춘 깔끔한 룩입니다.<br>`;
+    
+    if(!outer) {
+        recommendation += `<span class="add-item">• (추가 추천) 날씨를 고려해 가벼운 가디건이나 자켓을 추가해보세요!</span>`;
+    } else {
+        recommendation += `• 아우터/신발: ${outer.split(',')[0]}`;
+    }
+    recommendation += `</p>`;
+
+    document.getElementById('result-content').innerHTML = recommendation;
+    document.getElementById('result').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
