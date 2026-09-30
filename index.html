@@ -3,327 +3,913 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>상황별 맞춤 코디 추천 - LookFit</title>
+    <title>Toss Style AI Smart Closet & Personal Stylist</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        toss: {
+                            blue: '#3182F6',
+                            blueHover: '#1B64DA',
+                            blueLight: '#E8F3FF',
+                            bg: '#F2F4F6',
+                            card: '#FFFFFF',
+                            text: '#191F28',
+                            subtext: '#8B95A1',
+                            border: '#E5E8EB',
+                            darkCard: '#1E232B',
+                            accent: '#20C997'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'toss': '0 10px 30px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02)',
+                        'toss-hover': '0 18px 40px rgba(49, 130, 246, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04)',
+                        'toss-glow': '0 0 25px rgba(49, 130, 246, 0.25)'
+                    },
+                    borderRadius: {
+                        '2xl': '20px',
+                        '3xl': '24px'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
-        }
-
         body {
-            background-color: #f5f6f8;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Pretendard', sans-serif;
+            background-color: #F2F4F6;
+            color: #191F28;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F2F4F6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D1D6DB;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #B0B8C1;
         }
 
-        header {
-            margin-top: 20px;
-            margin-bottom: 30px;
-            text-align: center;
+        /* Smooth Transitions */
+        .toss-transition {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        header h1 {
-            color: #2c3e50;
-            font-size: 2rem;
-            margin-bottom: 8px;
+        /* Glassmorphism & Subtle Animations */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(229, 232, 235, 0.8);
         }
 
-        header p {
-            color: #7f8c8d;
-            font-size: 1rem;
+        .pulse-subtle {
+            animation: pulse-animation 2s infinite;
         }
 
-        .container {
-            background: #ffffff;
-            width: 100%;
-            max-width: 600px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            padding: 30px;
+        @keyframes pulse-animation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
 
-        .form-group {
-            margin-bottom: 20px;
+        .item-chip-checkbox:checked + label {
+            background-color: #3182F6;
+            color: #FFFFFF;
+            border-color: #3182F6;
+            box-shadow: 0 4px 12px rgba(49, 130, 246, 0.25);
         }
 
-        .form-group label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #34495e;
-        }
-
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-group select:focus {
-            border-color: #3498db;
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-submit:hover {
-            background-color: #2980b9;
-        }
-
-        .result-section {
-            margin-top: 30px;
-            padding-top: 25px;
-            border-top: 2px dashed #eee;
-            display: none;
-        }
-
-        .result-card {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 15px;
-        }
-
-        .result-card h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .result-card ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-        .result-card li {
-            padding: 6px 0;
-            font-size: 1rem;
-            position: relative;
-            padding-left: 20px;
-        }
-
-        .result-card li::before {
-            content: "•";
-            color: #3498db;
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-        }
-
-        .tip-box {
-            margin-top: 15px;
-            background-color: #e8f4fc;
-            padding: 12px 15px;
-            border-radius: 6px;
-            color: #2980b9;
-            font-size: 0.95rem;
+        .selectable-card.selected {
+            border-color: #3182F6;
+            background-color: #E8F3FF;
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen pb-12">
 
-    <header>
-        <h1>✨ 오늘의 코디 추천 (LookFit)</h1>
-        <p>상황과 날씨에 꼭 맞는 스타일을 추천해 드립니다.</p>
-    </header>
-
-    <main class="container">
-        <form id="recommendForm">
-            <!-- 성별 선택 -->
-            <div class="form-group">
-                <label for="gender">성별</label>
-                <select id="gender" required>
-                    <option value="male">남성</option>
-                    <option value="female">여성</option>
-                </select>
-            </div>
-
-            <!-- 상황 선택 -->
-            <div class="form-group">
-                <label for="situation">상황 (TPO)</label>
-                <select id="situation" required>
-                    <option value="interview">면접 / 비즈니스</option>
-                    <option value="date">데이트 / 소개팅</option>
-                    <option value="casual">친구 모임 / 카페</option>
-                    <option value="workout">운동 / 야외 활동</option>
-                    <option value="wedding">결혼식 하객</option>
-                </select>
-            </div>
-
-            <!-- 날씨 선택 -->
-            <div class="form-group">
-                <label for="weather">날씨</label>
-                <select id="weather" required>
-                    <option value="hot">더운 날 (여름)</option>
-                    <option value="mild">선선한 날 (봄/가을)</option>
-                    <option value="cold">추운 날 (겨울)</option>
-                    <option value="rain">비 오는 날</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn-submit">추천 코디 보기</button>
-        </form>
-
-        <!-- 결과 출력 영역 -->
-        <section id="resultSection" class="result-section">
-            <h2>💡 추천 스타일링</h2>
-            <div class="result-card">
-                <h3 id="recommendTitle">추천 착장</h3>
-                <ul id="recommendList">
-                    <!-- JavaScript로 목록이 추가됨 -->
-                </ul>
-                <div id="tipBox" class="tip-box">
-                    <!-- 스타일링 팁이 추가됨 -->
+    <!-- Header Navbar -->
+    <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-toss-blue text-white flex items-center justify-center font-bold text-xl shadow-toss-glow">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                    <span class="font-extrabold text-xl tracking-tight text-toss-text">Toss<span class="text-toss-blue"> Style AI</span></span>
+                    <span class="ml-2 px-2 py-0.5 text-xs font-semibold bg-toss-blueLight text-toss-blue rounded-full">Pro Custom 2.0</span>
                 </div>
             </div>
-        </section>
+            
+            <div class="flex items-center space-x-4">
+                <div class="hidden sm:flex items-center space-x-2 bg-gray-100 px-3 py-1.5 rounded-full text-xs font-medium text-gray-600">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span>개인화 AI 엔진 가동 중</span>
+                </div>
+                <button onclick="resetData()" class="text-xs text-toss-subtext hover:text-toss-text font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 toss-transition">
+                    <i class="fa-solid fa-rotate-right mr-1"></i>초기화
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        
+        <!-- Welcome Hero Banner -->
+        <div class="bg-gradient-to-r from-toss-blue via-blue-600 to-indigo-600 rounded-3xl p-6 sm:p-8 text-white mb-6 shadow-toss relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="relative z-10 max-w-2xl">
+                <div class="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium mb-3">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>초개인화 스타일 솔루션</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold leading-tight mb-2">
+                    <span id="user-greeting-name">회원</span>님의 체형과 퍼스널 컬러에 맞춘<br class="hidden sm:block">
+                    오늘의 Perfect Visual 코디
+                </h1>
+                <p class="text-white/80 text-xs sm:text-sm">
+                    가지고 계신 옷장 아이템을 선택하고, TPO 조건만 설정하세요.<br>AI가 색상 조화부터 정교한 레이어드 비주얼 룩북까지 직접 그려 드립니다.
+                </p>
+            </div>
+        </div>
+
+        <!-- 2-Column Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- LEFT PANEL: Personal Profile & Closet Builder (5 Columns) -->
+            <div class="lg:col-span-5 space-y-6">
+
+                <!-- 1. 초개인화 스타일 프로필 설정 -->
+                <div class="bg-white rounded-3xl p-6 shadow-toss border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-xl bg-blue-50 text-toss-blue flex items-center justify-center font-bold text-sm">1</div>
+                            <h2 class="text-lg font-bold text-toss-text">개인 맞춤 프로필 (Persona)</h2>
+                        </div>
+                        <span class="text-xs text-toss-subtext">맞춤형 알고리즘 적용</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- 사용자 이름 입력 -->
+                        <div>
+                            <label class="block text-xs font-semibold text-toss-subtext mb-1">사용자 이름/닉네임</label>
+                            <input type="text" id="user-name" value="김토스" oninput="updateProfileName()" 
+                                   class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-toss-blue focus:bg-white toss-transition font-medium">
+                        </div>
+
+                        <!-- 체형 선택 -->
+                        <div>
+                            <label class="block text-xs font-semibold text-toss-subtext mb-1.5">체형 특징</label>
+                            <div class="grid grid-cols-3 gap-2" id="body-shape-group">
+                                <button type="button" onclick="selectProfileOption('body', 'slim', this)" class="profile-btn border border-gray-200 py-2 px-3 rounded-xl text-xs font-medium hover:border-toss-blue toss-transition text-center">슬림한 편</button>
+                                <button type="button" onclick="selectProfileOption('body', 'standard', this)" class="profile-btn border border-toss-blue bg-toss-blueLight text-toss-blue py-2 px-3 rounded-xl text-xs font-semibold text-center">보통/표준</button>
+                                <button type="button" onclick="selectProfileOption('body', 'broad', this)" class="profile-btn border border-gray-200 py-2 px-3 rounded-xl text-xs font-medium hover:border-toss-blue toss-transition text-center">어깨 넓음</button>
+                                <button type="button" onclick="selectProfileOption('body', 'muscular', this)" class="profile-btn border border-gray-200 py-2 px-3 rounded-xl text-xs font-medium hover:border-toss-blue toss-transition text-center">체격/근육질</button>
+                                <button type="button" onclick="selectProfileOption('body', 'cover', this)" class="profile-btn border border-gray-200 py-2 px-3 rounded-xl text-xs font-medium hover:border-toss-blue toss-transition text-center">체형 커버</button>
+                                <button type="button" onclick="selectProfileOption('body', 'tall', this)" class="profile-btn border border-gray-200 py-2 px-3 rounded-xl text-xs font-medium hover:border-toss-blue toss-transition text-center">키가 큰 편</button>
+                            </div>
+                        </div>
+
+                        <!-- 선호 핏 & 스타일 -->
+                        <div>
+                            <label class="block text-xs font-semibold text-toss-subtext mb-1.5">선호 핏 및 스타일 무드</label>
+                            <div class="grid grid-cols-4 gap-1.5" id="style-fit-group">
+                                <button type="button" onclick="selectProfileOption('style', 'minimal', this)" class="profile-style-btn border border-toss-blue bg-toss-blueLight text-toss-blue py-1.5 rounded-lg text-xs font-semibold">미니멀</button>
+                                <button type="button" onclick="selectProfileOption('style', 'dandy', this)" class="profile-style-btn border border-gray-200 py-1.5 rounded-lg text-xs font-medium hover:border-toss-blue">댄디/클래식</button>
+                                <button type="button" onclick="selectProfileOption('style', 'street', this)" class="profile-style-btn border border-gray-200 py-1.5 rounded-lg text-xs font-medium hover:border-toss-blue">스트릿</button>
+                                <button type="button" onclick="selectProfileOption('style', 'cityboy', this)" class="profile-style-btn border border-gray-200 py-1.5 rounded-lg text-xs font-medium hover:border-toss-blue">시티보이</button>
+                            </div>
+                        </div>
+
+                        <!-- 퍼스널 컬러 / 컬러 톤 -->
+                        <div>
+                            <label class="block text-xs font-semibold text-toss-subtext mb-1.5">퍼스널 컬러 / 선호 톤</label>
+                            <div class="grid grid-cols-3 gap-2" id="color-tone-group">
+                                <button type="button" onclick="selectProfileOption('tone', 'warm', this)" class="color-tone-btn border border-gray-200 py-2 rounded-xl text-xs font-medium text-center hover:border-amber-400">🔥 Warm Tone</button>
+                                <button type="button" onclick="selectProfileOption('tone', 'cool', this)" class="color-tone-btn border border-toss-blue bg-toss-blueLight text-toss-blue py-2 rounded-xl text-xs font-semibold text-center">❄️ Cool Tone</button>
+                                <button type="button" onclick="selectProfileOption('tone', 'neutral', this)" class="color-tone-btn border border-gray-200 py-2 rounded-xl text-xs font-medium text-center hover:border-gray-400">⚖️ Neutral/무채색</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. TPO & 날씨/상황 설정 -->
+                <div class="bg-white rounded-3xl p-6 shadow-toss border border-gray-100">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-blue-50 text-toss-blue flex items-center justify-center font-bold text-sm">2</div>
+                        <h2 class="text-lg font-bold text-toss-text">상황 및 날씨 (TPO)</h2>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- 날씨 / 온도 컨트롤 슬라이더 -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-semibold text-toss-subtext">오늘의 기온 & 날씨</label>
+                                <span id="temp-display" class="text-xs font-bold text-toss-blue bg-toss-blueLight px-2 py-0.5 rounded-md">21°C (적당함)</span>
+                            </div>
+                            <input type="range" id="temp-range" min="-10" max="35" value="21" oninput="updateTemperature(this.value)" class="w-full accent-toss-blue h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-toss-subtext mt-1 font-medium">
+                                <span>-10°C (한파)</span>
+                                <span>15°C (선선)</span>
+                                <span>25°C (온화)</span>
+                                <span>35°C (폭염)</span>
+                            </div>
+                        </div>
+
+                        <!-- 추가 날씨 조건 -->
+                        <div>
+                            <label class="block text-xs font-semibold text-toss-subtext mb-1.5">날씨 특이사항</label>
+                            <div class="flex flex-wrap gap-2" id="weather-condition-group">
+                                <button type="button" onclick="toggleWeatherCondition('sunny', this)" class="weather-btn px-3 py-1.5 rounded-xl border border-toss-blue bg-toss-blueLight text-toss-blue text-xs font-semibold">☀️ 맑음</button>
+                                <button type="button" onclick="toggleWeatherCondition('rain', this)" class="weather-btn px-3 py-1.5 rounded-xl border border-gray-200 text-gray-600 text-xs font-medium hover:border-gray-400">🌧️ 비/눈 소식</button>
+                                <button type="button" onclick="toggleWeatherCondition('wind', this)" class="weather-btn px-3 py-1.5 rounded-xl border border-gray-200 text-gray-600 text-xs font-medium hover:border-gray-400">💨 바람/일교차</button>
+                            </div>
+                        </div>
+
+                        <!-- 착장 장소 및 목적 -->
+                        <div>
+                            <label class="block text-xs font-semibold text-toss-subtext mb-1.5">외출 목적 / 장소</label>
+                            <select id="tpo-occasion" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-toss-blue focus:bg-white font-medium text-toss-text">
+                                <option value="office">🏢 오피스 / 중요 업무 미팅</option>
+                                <option value="date" selected>🥂 데이트 / 소개팅</option>
+                                <option value="campus">🎓 학교 / 캠퍼스 라이프</option>
+                                <option value="casual">☕ 친구 모임 / 카페 나들이</option>
+                                <option value="wedding">💒 결혼식 하객 / 격식 있는 자리</option>
+                                <option value="travel">✈️ 여행 / 주말 야외 활동</option>
+                                <option value="workout">🏃 운동 / 산책 / 러닝</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 내 옷장 아이템 고르기 (카테고리별) -->
+                <div class="bg-white rounded-3xl p-6 shadow-toss border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-xl bg-blue-50 text-toss-blue flex items-center justify-center font-bold text-sm">3</div>
+                            <h2 class="text-lg font-bold text-toss-text">내 옷장 (My Closet)</h2>
+                        </div>
+                        <button type="button" onclick="selectAllClosetItems(true)" class="text-xs text-toss-blue font-semibold hover:underline">전체 선택</button>
+                    </div>
+
+                    <!-- Closet Category Tabs -->
+                    <div class="space-y-4" id="closet-categories-container">
+                        <!-- JS Dynamic Categories Insertion -->
+                    </div>
+                </div>
+
+                <!-- AI 코디 실행 버튼 -->
+                <button type="button" onclick="generateAICoord()" id="btn-generate" 
+                        class="w-full py-4 bg-toss-blue hover:bg-toss-blueHover text-white font-extrabold text-base rounded-2xl shadow-toss-glow toss-transition flex items-center justify-center space-x-2 pulse-subtle">
+                    <i class="fa-solid fa-sparkles text-amber-300 text-lg"></i>
+                    <span>AI 맞춤 코디 및 visual 이미지 생성하기</span>
+                </button>
+
+            </div>
+
+
+            <!-- RIGHT PANEL: Live Selected Closet & AI Visual Engine Output (7 Columns) -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- 1. 선택된 옷장 실시간 요약 (Interactive Summary) -->
+                <div class="bg-white rounded-3xl p-6 shadow-toss border border-gray-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-layer-group text-toss-blue"></i>
+                            <h3 class="font-bold text-sm text-toss-text">선택된 옷장 아이템 요약</h3>
+                        </div>
+                        <span id="selected-count-badge" class="px-3 py-1 bg-toss-blueLight text-toss-blue font-bold text-xs rounded-full">
+                            총 0개 선택됨
+                        </span>
+                    </div>
+
+                    <!-- Wardrobe Diversity Progress Bar -->
+                    <div class="mb-3">
+                        <div class="flex justify-between text-xs text-toss-subtext mb-1 font-medium">
+                            <span>옷장 다채로움 점수 (Diversity Score)</span>
+                            <span id="diversity-score-text" class="font-bold text-toss-blue">0%</span>
+                        </div>
+                        <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div id="diversity-bar" class="h-full bg-toss-blue toss-transition" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Selected Items Chips Container -->
+                    <div id="selected-chips-wrapper" class="flex flex-wrap gap-1.5 min-h-[40px] p-2 bg-gray-50 rounded-2xl border border-gray-100">
+                        <span class="text-xs text-toss-subtext p-2">왼쪽 옷장에서 조합할 옷들을 체크해 주세요.</span>
+                    </div>
+                </div>
+
+
+                <!-- 2. AI 추천 메인 결과 및 Visual Image Display Card -->
+                <div id="ai-result-card" class="bg-white rounded-3xl p-6 sm:p-8 shadow-toss border border-gray-100 toss-transition">
+                    
+                    <!-- Ready Placeholder State -->
+                    <div id="ai-placeholder" class="py-16 text-center space-y-4">
+                        <div class="w-20 h-20 bg-toss-blueLight text-toss-blue rounded-3xl flex items-center justify-center mx-auto text-3xl shadow-sm">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-extrabold text-toss-text">AI visual 코디 생성을 기다리고 있습니다</h3>
+                            <p class="text-xs text-toss-subtext mt-1 max-w-md mx-auto">
+                                내 프로필 조건과 날씨, 옷장 아이템을 확인한 후<br>하단의 <strong>'AI 맞춤 코디 및 Visual 이미지 생성하기'</strong> 버튼을 클릭하세요.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Loading State (Hidden by default) -->
+                    <div id="ai-loading" class="hidden py-16 text-center space-y-5">
+                        <div class="relative w-20 h-20 mx-auto">
+                            <div class="absolute inset-0 rounded-full border-4 border-toss-blueLight border-t-toss-blue animate-spin"></div>
+                            <div class="absolute inset-0 flex items-center justify-center text-toss-blue text-xl">
+                                <i class="fa-solid fa-shirt animate-bounce"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-toss-text">AI 맞춤 룩북 및 일러스트 이미지 생성 중...</h3>
+                            <p class="text-xs text-toss-subtext mt-1">퍼스널 컬러 밸런스 및 TPO 알고리즘을 계산하고 있습니다</p>
+                        </div>
+                    </div>
+
+                    <!-- Active Result State (Hidden by default) -->
+                    <div id="ai-output" class="hidden space-y-6">
+                        
+                        <!-- Header Score & Match Badge -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-gray-100">
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <span id="output-tpo-badge" class="px-2.5 py-1 bg-emerald-50 text-emerald-600 font-bold text-xs rounded-lg border border-emerald-200">
+                                        ✨ 완벽한 데이트 룩
+                                    </span>
+                                    <span id="output-weather-badge" class="px-2.5 py-1 bg-blue-50 text-toss-blue font-bold text-xs rounded-lg border border-blue-200">
+                                        🌡️ 21°C 적합
+                                    </span>
+                                </div>
+                                <h3 id="output-title" class="text-xl font-extrabold text-toss-text mt-2">
+                                    "세련된 올드머니 톤온톤 캐주얼 룩"
+                                </h3>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-toss-blueLight to-blue-100 p-3 rounded-2xl text-center min-w-[100px]">
+                                <span class="block text-[10px] font-bold text-toss-blue uppercase tracking-wider">Style Match</span>
+                                <span id="output-score" class="text-2xl font-black text-toss-blue">98%</span>
+                            </div>
+                        </div>
+
+                        <!-- ★ CORE FEATURE: VISUAL OUTFIT IMAGE DISPLAY CARD ★ -->
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fa-solid fa-image text-toss-blue"></i>
+                                    <h4 class="font-bold text-sm text-toss-text">생성된 Visual Outfit 그래픽 콜라주</h4>
+                                </div>
+                                <span class="text-[11px] text-toss-subtext">AI Dynamic Vector Rendering</span>
+                            </div>
+
+                            <!-- Canvas Container -->
+                            <div class="relative bg-gradient-to-b from-gray-50 to-slate-100 rounded-3xl p-4 sm:p-6 border border-gray-200 flex flex-col items-center justify-center min-h-[360px] shadow-inner overflow-hidden">
+                                
+                                <!-- Background Watermark -->
+                                <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                                    <i class="fa-solid fa-shirt text-[220px]"></i>
+                                </div>
+
+                                <!-- Dynamic SVG Canvas Output -->
+                                <div id="visual-outfit-svg-container" class="w-full max-w-md mx-auto relative z-10 flex flex-col items-center">
+                                    <!-- Dynamic SVG Graphics Generated via JS -->
+                                </div>
+
+                                <!-- Color Palette Chips Bar -->
+                                <div class="mt-4 pt-3 border-t border-gray-200/80 w-full flex items-center justify-between text-xs">
+                                    <span class="font-semibold text-gray-500 text-[11px]">추천 컬러 팔레트:</span>
+                                    <div id="color-palette-bar" class="flex space-x-2">
+                                        <!-- JS dynamic colors -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stylist Recommendation Commentary -->
+                        <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                            <h4 class="text-xs font-extrabold text-toss-text mb-2 flex items-center space-x-1.5">
+                                <i class="fa-solid fa-comment-dots text-toss-blue"></i>
+                                <span>AI 스타일리스트 분석 코멘트</span>
+                            </h4>
+                            <p id="output-commentary" class="text-xs sm:text-sm text-gray-700 leading-relaxed font-normal">
+                                분석 코멘트가 이곳에 표시됩니다.
+                            </p>
+                        </div>
+
+                        <!-- Breakdown List of Selected Items -->
+                        <div>
+                            <h4 class="text-xs font-bold text-toss-subtext uppercase tracking-wider mb-2">착용 조합 아이템</h4>
+                            <div id="output-item-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <!-- JS dynamic item list -->
+                            </div>
+                        </div>
+
+                        <!-- Shop Missing Items Section (추가 구매 제안) -->
+                        <div class="bg-blue-50/60 rounded-2xl p-4 border border-blue-100/80">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-toss-blue flex items-center">
+                                    <i class="fa-solid fa-bag-shopping mr-1.5"></i> 이 코디를 완성할 한 끗 차이 추천 아이템
+                                </span>
+                                <span class="text-[10px] text-gray-500">스마트 매칭</span>
+                            </div>
+                            <div id="missing-item-recommendation" class="flex items-center justify-between bg-white p-3 rounded-xl border border-blue-100">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-toss-blue font-bold text-base">
+                                        <i class="fa-solid fa-ring"></i>
+                                    </div>
+                                    <div>
+                                        <p id="suggested-item-name" class="text-xs font-bold text-toss-text">실버 실크 스카프 / 원포인트 악세서리</p>
+                                        <p class="text-[11px] text-toss-subtext">현재 착장에 매치시 완성도 +15% 상승</p>
+                                    </div>
+                                </div>
+                                <button onclick="alert('상품 상세 페이지로 이동합니다.')" class="px-3 py-1.5 bg-toss-blue text-white rounded-lg text-xs font-semibold hover:bg-toss-blueHover toss-transition">
+                                    보기
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
     </main>
 
     <script>
-        // 추천 데이터베이스 (간단한 예시 데이터)
-        const outfitDatabase = {
-            interview: {
-                hot: {
-                    items: ["린넨 믹스 셋업 슈트 (네이비/찰콜)", "반팔 드레스 셔츠 또는 니트 셔츠", "로퍼 또는 깔끔한 가죽 더비슈즈"],
-                    tip: "여름 면접은 얇은 소재의 반안감 슈트를 선택해 쾌적함과 정중함을 모두 챙기세요."
-                },
-                mild: {
-                    items: ["다크 네이비 / 딥 그레이 기본 슈트", "화이트 셔츠", "가죽 더비슈즈 / 옥스퍼드화", "깔끔한 타이"],
-                    tip: "가장 클래식한 조합입니다. 구김이 잘 가지 않는 소재를 고르는 것이 좋습니다."
-                },
-                cold: {
-                    items: ["울 소재의 체스터필드 코트", "드레스 슈트 및 셔츠", "깔끔한 가죽 드레스 슈즈"],
-                    tip: "패딩보다는 모던하고 단정한 싱글 울 코트를 외투로 착용하는 것을 추천합니다."
-                },
-                rain: {
-                    items: ["방수 기능성 단정한 트렌치코트", "셋업 슈트", "가죽 방수 스프레이를 뿌린 슈즈"],
-                    tip: "바지 밑단에 빗물이 튀지 않도록 기장을 너무 길지 않게 연출하세요."
-                }
-            },
-            date: {
-                hot: {
-                    items: ["반팔 카라 니트", "슬림핏 슬랙스 또는 하프 팬츠", "화이트 가죽 스니커즈"],
-                    tip: "과하게 짧은 반바지보다는 무릎 위 약간 올라오는 깔끔한 핏을 선택하세요."
-                },
-                mild: {
-                    items: ["오버핏 블루종 / 트래커 재킷", "라운드넥 옥스포드 셔츠", "크롭 슬랙스 / 테이퍼드 데님"],
-                    tip: "화사한 컬러감의 상의로 포인트를 주면 신뢰감을 주면서도 부드러운 인상을 만듭니다."
-                },
-                cold: {
-                    items: ["롱/쇼트 든든한 숏패딩 또는 울 코트", "터틀넥 니트", "크롭핏 슬랙스 / 첼시 부츠"],
-                    tip: "터틀넥과 코트의 조합은 따뜻하면서도 세련된 느낌을 줄 수 있습니다."
-                },
-                rain: {
-                    items: ["바람막이/나일론 재킷", "청바지(어두운 톤)", "어두운 톤의 스니커즈"],
-                    tip: "밝은색 바지는 빗물이 튈 수 있으니 어두운 데님이나 짙은 색 슬랙스를 입으세요."
-                }
-            },
-            casual: {
-                hot: {
-                    items: ["오버핏 티셔츠", "와이드 데님 팬츠 또는 숏팬츠", "편안한 샌들 / 캔버스화"],
-                    tip: "트렌디한 와이드 핏으로 스타일리시함을 더해보세요."
-                },
-                mild: {
-                    items: ["맨투맨 또는 후드티", "조거 팬츠 / 와이드 팬츠", "러닝화 / 러프한 스니커즈"],
-                    tip: "레이어드용 흰색 티셔츠를 밑단 밖으로 살짝 보이게 연출해 보세요."
-                },
-                cold: {
-                    items: ["헤비 웨이트 패딩", "기모 후드티", "데님 팬츠 / 워커"],
-                    tip: "보온성이 우수한 레이어드 룩을 추천합니다."
-                },
-                rain: {
-                    items: ["아노락 / 숏 바람막이", "방수 재질 쇼츠 / 나일론 팬츠", "레인부츠 또는 크록스류"],
-                    tip: "습도가 높으니 잘 마르는 나일론 재질의 의류가 좋습니다."
-                }
-            },
-            workout: {
-                hot: {
-                    items: ["기능성 드라이핏 반팔티", "트레이닝 쇼츠", "러닝화"],
-                    tip: "땀 흡수와 배출이 잘 되는 스포츠 웨어를 선택하세요."
-                },
-                mild: {
-                    items: ["기능성 긴팔티", "트레이닝 바지", "바람막이 아우터"],
-                    tip: "체온 조절을 위해 체온이 올라가면 벗을 수 있는 겉옷을 챙기세요."
-                },
-                cold: {
-                    items: ["방풍 플리스 또는 경량 패딩", "기모 트레이닝 팬츠", "장갑 및 비니"],
-                    tip: "야외 운동 시 관절을 보호할 수 있도록 따뜻하게 입어주세요."
-                },
-                rain: {
-                    items: ["방수 러닝 재킷", "기능성 숏팬츠", "러닝용 우의"],
-                    tip: "우천 시 야외 운동은 미끄러짐 위험이 있으니 신발 창의 그립감을 확인하세요."
-                }
-            },
-            wedding: {
-                hot: {
-                    items: ["시어서커 / 린넨 블레이저", "슬랙스", "로퍼 (노쇼 삭스)"],
-                    tip: "화이트 컬러 계열은 피하고, 톤 다운된 컬러로 예의를 갖추세요."
-                },
-                mild: {
-                    items: ["세미 오버핏 셋업 수트", "라운드 넥 얇은 니트", "더비 슈즈"],
-                    tip: "넥타이를 매지 않는 세미 포멀 스타일이 요즘 하객 룩의 트렌드입니다."
-                },
-                cold: {
-                    items: ["울 모직 슈트", "싱글 롱코트", "드레스 슈즈"],
-                    tip: "어두운 계열의 코트와 수트로 차분하고 격식 있는 분위기를 연출하세요."
-                },
-                rain: {
-                    items: ["다크 톤의 셋업 슈트", "단정한 우산", "가죽 슈즈 (방수 관리)"],
-                    tip: "바지 밑단이 젖는 것을 방지하기 위해 복숭아뼈 정도에 맞춘 핏을 추천합니다."
-                }
-            }
+        // ==========================================
+        // DATA MODELS & WARDROBE DATABASE
+        // ==========================================
+        const CLOSET_DATABASE = {
+            outer: [
+                { id: 'out_1', name: '오버핏 오버사이즈 블레이저', color: '#2C3E50', type: 'Blazer', hexName: '네이비' },
+                { id: 'out_2', name: '미니멀 트렌치 코트', color: '#D4B896', type: 'Coat', hexName: '베이지' },
+                { id: 'out_3', name: '캐주얼 가죽 라이더 자켓', color: '#1A1A1A', type: 'Jacket', hexName: '블랙' },
+                { id: 'out_4', name: '데님 럭비 자켓', color: '#4A6984', type: 'Jacket', hexName: '중청' },
+                { id: 'out_5', name: '구스다운 숏패딩', color: '#2B2D42', type: 'Padding', hexName: '다크그레이' }
+            ],
+            top: [
+                { id: 'top_1', name: '화이트 베이직 옥스포드 셔츠', color: '#FFFFFF', type: 'Shirt', hexName: '화이트' },
+                { id: 'top_2', name: '소프트 니트 가디건', color: '#A89F91', type: 'Knit', hexName: '오트밀' },
+                { id: 'top_3', name: '헤비웨이트 크루넥 맨투맨', color: '#808080', type: 'Sweatshirt', hexName: '그레이' },
+                { id: 'top_4', name: '블랙 스트라이프 카라티', color: '#111111', type: 'Polo', hexName: '블랙' },
+                { id: 'top_5', name: '파스텔 블루 오버핏 티셔츠', color: '#A0C4FF', type: 'T-Shirt', hexName: '라이트블루' }
+            ],
+            bottom: [
+                { id: 'bot_1', name: '와이드 와싱 데님 팬츠', color: '#3B5998', type: 'Jeans', hexName: '인디고' },
+                { id: 'bot_2', name: '테일러드 슬랙스', color: '#1C1C1C', type: 'Slacks', hexName: '블랙' },
+                { id: 'bot_3', name: '원턱 파티그 치노 팬츠', color: '#556B2F', type: 'Chino', hexName: '카키' },
+                { id: 'bot_4', name: '크림 컬러 라이트 파티그', color: '#F5F5DC', type: 'Chino', hexName: '크림' }
+            ],
+            shoes: [
+                { id: 'sho_1', name: '클래식 레더 로퍼', color: '#3B2F2F', type: 'Loafer', hexName: '다크브라운' },
+                { id: 'sho_2', name: '화이트 미니멀 스니커즈', color: '#F9F9F9', type: 'Sneakers', hexName: '화이트' },
+                { id: 'sho_3', name: '독일군 러너 스니커즈', color: '#D3D3D3', type: 'Sneakers', hexName: '베이지/그레이' },
+                { id: 'sho_4', name: '첼시 부츠', color: '#0F0F0F', type: 'Boots', hexName: '블랙' }
+            ],
+            acc: [
+                { id: 'acc_1', name: '미니멀 레더 크로스백', color: '#222222', type: 'Bag', hexName: '블랙' },
+                { id: 'acc_2', name: '실버 아날로그 시계', color: '#C0C0C0', type: 'Watch', hexName: '실버' },
+                { id: 'acc_3', name: '볼캡 모자', color: '#34495E', type: 'Cap', hexName: '네이비' }
+            ]
         };
 
-        // 폼 제출 이벤트 처리
-        document.getElementById('recommendForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // User Profile & Selection State
+        let userState = {
+            name: '김토스',
+            body: 'standard',
+            style: 'minimal',
+            tone: 'cool',
+            temp: 21,
+            weather: ['sunny'],
+            occasion: 'date',
+            selectedItems: new Set(['out_1', 'top_1', 'bot_1', 'bot_2', 'sho_2', 'acc_1'])
+        };
 
-            const situation = document.getElementById('situation').value;
-            const weather = document.getElementById('weather').value;
+        // Initialize UI on DOM Ready
+        window.onload = function() {
+            renderClosetCategories();
+            updateSelectedSummary();
+        };
 
-            // 데이터 조회
-            const selectedData = outfitDatabase[situation]?.[weather];
+        // Profile Handlers
+        function updateProfileName() {
+            const inputVal = document.getElementById('user-name').value.trim();
+            userState.name = inputVal || '회원';
+            document.getElementById('user-greeting-name').innerText = userState.name;
+        }
 
-            if (selectedData) {
-                const listElement = document.getElementById('recommendList');
-                const tipElement = document.getElementById('tipBox');
+        function selectProfileOption(type, value, btnElem) {
+            userState[type] = value;
+            
+            let containerId = '';
+            if (type === 'body') containerId = 'body-shape-group';
+            else if (type === 'style') containerId = 'style-fit-group';
+            else if (type === 'tone') containerId = 'color-tone-group';
 
-                // 이전 목록 초기화
-                listElement.innerHTML = '';
+            const buttons = document.querySelectorAll(`#${containerId} button`);
+            buttons.forEach(btn => {
+                btn.className = btn.className
+                    .replace('border-toss-blue bg-toss-blueLight text-toss-blue font-semibold', 'border-gray-200 text-gray-700 font-medium')
+                    .replace('border-amber-400', 'border-gray-200');
+            });
 
-                // 추천 아이템 목록 추가
-                selectedData.items.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item;
-                    listElement.appendChild(li);
+            btnElem.className = "profile-btn border border-toss-blue bg-toss-blueLight text-toss-blue py-2 px-3 rounded-xl text-xs font-semibold text-center toss-transition";
+        }
+
+        function updateTemperature(val) {
+            userState.temp = parseInt(val, 10);
+            let label = '적당함';
+            if (val <= 0) label = '한파 / 매우 춥음';
+            else if (val <= 12) label = '쌀쌀함 / 외투 필수';
+            else if (val <= 22) label = '쾌적함 / 봄·가을';
+            else if (val <= 28) label = '더움 / 반팔 추천';
+            else label = '폭염 / 매우 덥음';
+
+            document.getElementById('temp-display').innerText = `${val}°C (${label})`;
+        }
+
+        function toggleWeatherCondition(cond, btnElem) {
+            const idx = userState.weather.indexOf(cond);
+            if (idx > -1) {
+                userState.weather.splice(idx, 1);
+                btnElem.className = "weather-btn px-3 py-1.5 rounded-xl border border-gray-200 text-gray-600 text-xs font-medium hover:border-gray-400";
+            } else {
+                userState.weather.push(cond);
+                btnElem.className = "weather-btn px-3 py-1.5 rounded-xl border border-toss-blue bg-toss-blueLight text-toss-blue text-xs font-semibold";
+            }
+        }
+
+        // Closet Item Rendering
+        function renderClosetCategories() {
+            const container = document.getElementById('closet-categories-container');
+            container.innerHTML = '';
+
+            const categoryNames = {
+                outer: '🧥 아우터 (Outer)',
+                top: '👕 상의 (Tops)',
+                bottom: '👖 하의 (Bottoms)',
+                shoes: '👟 신발 (Shoes)',
+                acc: '👜 잡화 / 악세서리 (Acc)'
+            };
+
+            for (const [catKey, items] of Object.entries(CLOSET_DATABASE)) {
+                const catBlock = document.createElement('div');
+                catBlock.className = 'border-b border-gray-100 pb-3 last:border-b-0';
+
+                let html = `
+                    <label class="block text-xs font-bold text-toss-text mb-2">${categoryNames[catKey]}</label>
+                    <div class="flex flex-wrap gap-1.5">
+                `;
+
+                items.forEach(item => {
+                    const isChecked = userState.selectedItems.has(item.id);
+                    html += `
+                        <input type="checkbox" id="chk_${item.id}" value="${item.id}" 
+                               class="item-chip-checkbox hidden" ${isChecked ? 'checked' : ''} 
+                               onchange="toggleItemSelection('${item.id}')">
+                        <label for="chk_${item.id}" 
+                               class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-700 cursor-pointer hover:border-gray-300 toss-transition select-none">
+                            <span class="w-2.5 h-2.5 rounded-full border border-gray-300 shadow-sm" style="background-color: ${item.color};"></span>
+                            <span>${item.name}</span>
+                        </label>
+                    `;
                 });
 
-                // 팁 추가
-                tipElement.textContent = "💡 스타일링 팁: " + selectedData.tip;
-
-                // 결과 영역 표시
-                document.getElementById('resultSection').style.display = 'block';
+                html += `</div>`;
+                catBlock.innerHTML = html;
+                container.appendChild(catBlock);
             }
-        });
+        }
+
+        function toggleItemSelection(id) {
+            if (userState.selectedItems.has(id)) {
+                userState.selectedItems.delete(id);
+            } else {
+                userState.selectedItems.add(id);
+            }
+            updateSelectedSummary();
+        }
+
+        function selectAllClosetItems(status) {
+            for (const category in CLOSET_DATABASE) {
+                CLOSET_DATABASE[category].forEach(item => {
+                    if (status) userState.selectedItems.add(item.id);
+                    else userState.selectedItems.delete(item.id);
+                });
+            }
+            renderClosetCategories();
+            updateSelectedSummary();
+        }
+
+        // Update Right Panel Summary Chips & Progress
+        function updateSelectedSummary() {
+            const wrapper = document.getElementById('selected-chips-wrapper');
+            const badge = document.getElementById('selected-count-badge');
+            const totalCount = userState.selectedItems.size;
+
+            badge.innerText = `총 ${totalCount}개 선택됨`;
+
+            // Calculate Diversity
+            let categoriesWithSelection = 0;
+            for (const category in CLOSET_DATABASE) {
+                const hasSelected = CLOSET_DATABASE[category].some(i => userState.selectedItems.has(i.id));
+                if (hasSelected) categoriesWithSelection++;
+            }
+            const diversityScore = Math.min(100, Math.round((categoriesWithSelection / 5) * 100));
+            document.getElementById('diversity-score-text').innerText = `${diversityScore}%`;
+            document.getElementById('diversity-bar').style.width = `${diversityScore}%`;
+
+            if (totalCount === 0) {
+                wrapper.innerHTML = `<span class="text-xs text-toss-subtext p-2">선택된 옷장 아이템이 없습니다.</span>`;
+                return;
+            }
+
+            let chipsHtml = '';
+            const allItems = Object.values(CLOSET_DATABASE).flat();
+            
+            userState.selectedItems.forEach(id => {
+                const item = allItems.find(i => i.id === id);
+                if (item) {
+                    chipsHtml += `
+                        <span class="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-white border border-gray-200 rounded-lg text-xs font-medium text-toss-text shadow-sm">
+                            <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
+                            <span>${item.name}</span>
+                            <button onclick="toggleItemSelection('${item.id}'); renderClosetCategories();" class="text-gray-400 hover:text-red-500 ml-1">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </span>
+                    `;
+                }
+            });
+
+            wrapper.innerHTML = chipsHtml;
+        }
+
+        // ==========================================
+        // MAIN AI RECOMMENDATION & VISUAL GENERATOR ENGINE
+        // ==========================================
+        function generateAICoord() {
+            if (userState.selectedItems.size === 0) {
+                alert('최소 1개 이상의 옷장 아이템을 선택해 주세요.');
+                return;
+            }
+
+            // Show Loading
+            document.getElementById('ai-placeholder').classList.add('hidden');
+            document.getElementById('ai-output').classList.add('hidden');
+            document.getElementById('ai-loading').classList.remove('hidden');
+
+            setTimeout(() => {
+                // Process Outfit Calculation
+                const result = calculateBestOutfit();
+
+                // Render Visual Canvas/SVG Card
+                renderVisualOutfitSVG(result);
+
+                // Update Output Text Contexts
+                document.getElementById('output-title').innerText = `"${result.title}"`;
+                document.getElementById('output-score').innerText = `${result.score}%`;
+                document.getElementById('output-tpo-badge').innerText = `✨ ${result.tpoLabel}`;
+                document.getElementById('output-weather-badge').innerText = `🌡️ ${userState.temp}°C 최적화`;
+                document.getElementById('output-commentary').innerText = result.commentary;
+
+                // Render Item List
+                const itemListContainer = document.getElementById('output-item-list');
+                itemListContainer.innerHTML = '';
+                result.items.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'flex items-center space-x-2.5 p-2.5 bg-gray-50 rounded-xl border border-gray-100';
+                    itemDiv.innerHTML = `
+                        <span class="w-4 h-4 rounded-full border border-gray-300 shadow-sm flex-shrink-0" style="background-color: ${item.color}"></span>
+                        <div class="overflow-hidden">
+                            <p class="text-xs font-bold text-toss-text truncate">${item.name}</p>
+                            <p class="text-[10px] text-toss-subtext">${item.hexName} · ${item.type}</p>
+                        </div>
+                    `;
+                    itemListContainer.appendChild(itemDiv);
+                });
+
+                // Missing Item Shop Recommendation
+                document.getElementById('suggested-item-name').innerText = result.suggestedItem;
+
+                // Color Palette
+                const paletteBar = document.getElementById('color-palette-bar');
+                paletteBar.innerHTML = '';
+                result.palette.forEach(hex => {
+                    paletteBar.innerHTML += `<span class="w-5 h-5 rounded-full border border-gray-300 shadow-sm" style="background-color: ${hex}" title="${hex}"></span>`;
+                });
+
+                // Hide Loading, Show Output
+                document.getElementById('ai-loading').classList.add('hidden');
+                document.getElementById('ai-output').classList.remove('hidden');
+
+            }, 1000);
+        }
+
+        // Outfit Matching Algorithm Logic
+        function calculateBestOutfit() {
+            const allSelected = Array.from(userState.selectedItems);
+            const allItems = Object.values(CLOSET_DATABASE).flat();
+            const selectedObjects = allItems.filter(i => allSelected.includes(i.id));
+
+            // Filter by Category
+            const selectedOuters = selectedObjects.filter(i => CLOSET_DATABASE.outer.some(o => o.id === i.id));
+            const selectedTops = selectedObjects.filter(i => CLOSET_DATABASE.top.some(t => t.id === i.id));
+            const selectedBottoms = selectedObjects.filter(i => CLOSET_DATABASE.bottom.some(b => b.id === i.id));
+            const selectedShoes = selectedObjects.filter(i => CLOSET_DATABASE.shoes.some(s => s.id === i.id));
+            const selectedAccs = selectedObjects.filter(i => CLOSET_DATABASE.acc.some(a => a.id === i.id));
+
+            // Pick items according to weather temperature
+            let chosenOuter = null;
+            if (userState.temp <= 18 && selectedOuters.length > 0) {
+                chosenOuter = selectedOuters[0];
+            } else if (userState.temp <= 12 && selectedOuters.length > 0) {
+                chosenOuter = selectedOuters[0];
+            }
+
+            let chosenTop = selectedTops[0] || { name: '기본 라운드 반팔 티셔츠', color: '#FFFFFF', type: 'T-Shirt', hexName: '화이트' };
+            let chosenBottom = selectedBottoms[0] || { name: '슬림 테일러드 팬츠', color: '#1C1C1C', type: 'Slacks', hexName: '블랙' };
+            let chosenShoes = selectedShoes[0] || { name: '미니멀 화이트 스니커즈', color: '#FFFFFF', type: 'Sneakers', hexName: '화이트' };
+            let chosenAcc = selectedAccs[0] || null;
+
+            const finalItems = [];
+            if (chosenOuter) finalItems.push(chosenOuter);
+            if (chosenTop) finalItems.push(chosenTop);
+            if (chosenBottom) finalItems.push(chosenBottom);
+            if (chosenShoes) finalItems.push(chosenShoes);
+            if (chosenAcc) finalItems.push(chosenAcc);
+
+            // Dynamic Title & Commentary based on User Persona
+            let title = "클래식 모던 밸런스드 룩";
+            let tpoLabel = "데이트 & 격식";
+            let suggestedItem = "무채색 톤온톤 미니멀 머플러";
+
+            if (userState.style === 'minimal') {
+                title = `${chosenTop.hexName} & ${chosenBottom.hexName} 미니멀 실루엣 룩`;
+                suggestedItem = "실버 아날로그 미니멀 메탈 워치";
+            } else if (userState.style === 'dandy') {
+                title = `세련된 스마트 댄디 캐주얼 스타일`;
+                suggestedItem = "다크 브라운 레더 가죽 벨트";
+            } else if (userState.style === 'street') {
+                title = `감각적인 오버핏 트렌디 스트릿 룩`;
+                suggestedItem = "볼드한 실버 체인 목걸이";
+            }
+
+            const occasionMap = {
+                office: '비즈니스 & 오피스',
+                date: '데이트 & 소개팅',
+                campus: '캠퍼스 라이프',
+                casual: '카페 & 데일리 모임',
+                wedding: '하객 & 인프라 격식',
+                travel: '주말 야외 활동',
+                workout: '스포츠 & 애슬레저'
+            };
+            tpoLabel = occasionMap[userState.occasion] || '데일리 추천';
+
+            const commentary = `${userState.name}님의 [${userState.body === 'slim' ? '슬림' : '표준'}] 체형과 [${userState.tone === 'cool' ? '쿨톤' : '웜톤'}] 컬러감을 고려하여, ${userState.temp}°C 기온에 최적화된 레이어드를 연출했습니다. ${chosenTop.name}와 ${chosenBottom.name}의 대비로 깔끔한 비율감을 완성했습니다.`;
+
+            const palette = finalItems.map(i => i.color);
+
+            return {
+                title: title,
+                score: Math.floor(Math.random() * 5) + 95, // High match score 95-99
+                tpoLabel: tpoLabel,
+                commentary: commentary,
+                items: finalItems,
+                outer: chosenOuter,
+                top: chosenTop,
+                bottom: chosenBottom,
+                shoes: chosenShoes,
+                acc: chosenAcc,
+                palette: palette,
+                suggestedItem: suggestedItem
+            };
+        }
+
+        // Dynamic High-Quality SVG Visual Outfit Canvas Renderer
+        function renderVisualOutfitSVG(result) {
+            const svgContainer = document.getElementById('visual-outfit-svg-container');
+
+            const outerColor = result.outer ? result.outer.color : 'transparent';
+            const topColor = result.top ? result.top.color : '#FFFFFF';
+            const bottomColor = result.bottom ? result.bottom.color : '#222222';
+            const shoesColor = result.shoes ? result.shoes.color : '#333333';
+            const accColor = result.acc ? result.acc.color : '#C0C0C0';
+
+            const svgContent = `
+                <svg viewBox="0 0 400 420" width="100%" height="340" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-lg">
+                    <defs>
+                        <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+                            <feDropShadow dx="0" dy="8" stdDeviation="6" flood-opacity="0.12"/>
+                        </filter>
+                        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+                            <stop offset="100%" stop-color="#F3F4F6" stop-opacity="0.9"/>
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Background Outfit Display Pedestal Base -->
+                    <ellipse cx="200" cy="385" rx="130" ry="18" fill="#E5E8EB" opacity="0.7" />
+
+                    <!-- 1. SHOES (BOTTOM LAYER) -->
+                    <g id="svg-shoes" filter="url(#soft-shadow)">
+                        <!-- Left Shoe -->
+                        <path d="M 145 345 C 145 340, 160 338, 168 348 C 175 358, 175 370, 170 372 C 160 375, 138 372, 138 362 Z" fill="${shoesColor}" stroke="#1D2129" stroke-width="2"/>
+                        <!-- Right Shoe -->
+                        <path d="M 255 345 C 255 340, 240 338, 232 348 C 225 358, 225 370, 230 372 C 240 375, 262 372, 262 362 Z" fill="${shoesColor}" stroke="#1D2129" stroke-width="2"/>
+                        <!-- Shoe Soles -->
+                        <path d="M 138 368 Q 155 376 172 370" stroke="#FFFFFF" stroke-width="3" fill="none" opacity="0.6"/>
+                        <path d="M 262 368 Q 245 376 228 370" stroke="#FFFFFF" stroke-width="3" fill="none" opacity="0.6"/>
+                    </g>
+
+                    <!-- 2. BOTTOMS (PANTS/SLACKS) -->
+                    <g id="svg-bottom" filter="url(#soft-shadow)">
+                        <!-- Pants Main Contour -->
+                        <path d="M 152 195 L 248 195 L 260 350 L 222 350 L 200 245 L 178 350 L 140 350 Z" 
+                              fill="${bottomColor}" stroke="#1D2129" stroke-width="2.5" stroke-linejoin="round"/>
+                        <!-- Pants Fold & Seam Lines -->
+                        <line x1="200" y1="195" x2="200" y2="245" stroke="#1D2129" stroke-width="1.5" opacity="0.4"/>
+                        <line x1="172" y1="210" x2="160" y2="340" stroke="#FFFFFF" stroke-width="1" opacity="0.15"/>
+                        <line x1="228" y1="210" x2="240" y2="340" stroke="#FFFFFF" stroke-width="1" opacity="0.15"/>
+                    </g>
+
+                    <!-- 3. TOPS (SHIRT/KNIT) -->
+                    <g id="svg-top" filter="url(#soft-shadow)">
+                        <!-- Torso Body -->
+                        <path d="M 135 75 L 265 75 L 252 205 L 148 205 Z" fill="${topColor}" stroke="#1D2129" stroke-width="2.5"/>
+                        <!-- Left Sleeve -->
+                        <path d="M 135 75 L 100 145 L 128 155 L 148 105 Z" fill="${topColor}" stroke="#1D2129" stroke-width="2.5"/>
+                        <!-- Right Sleeve -->
+                        <path d="M 265 75 L 300 145 L 272 155 L 252 105 Z" fill="${topColor}" stroke="#1D2129" stroke-width="2.5"/>
+                        <!-- Collar & Neckline Detail -->
+                        <path d="M 175 75 C 185 92, 215 92, 225 75" fill="none" stroke="#1D2129" stroke-width="2.5"/>
+                        <path d="M 185 75 L 200 100 L 215 75" fill="#FFFFFF" opacity="0.8" stroke="#1D2129" stroke-width="1.5"/>
+                    </g>
+
+                    <!-- 4. OUTERWEAR (IF SELECTED) -->
+                    ${result.outer ? `
+                    <g id="svg-outer" filter="url(#soft-shadow)">
+                        <!-- Left Outer Flap -->
+                        <path d="M 130 68 L 178 72 L 168 215 L 118 210 L 92 145 Z" fill="${outerColor}" stroke="#1D2129" stroke-width="2.5"/>
+                        <!-- Right Outer Flap -->
+                        <path d="M 270 68 L 222 72 L 232 215 L 282 210 L 308 145 Z" fill="${outerColor}" stroke="#1D2129" stroke-width="2.5"/>
+                        <!-- Collar Lapel Lines -->
+                        <path d="M 130 68 L 160 115 L 142 120 L 162 160" fill="none" stroke="#1D2129" stroke-width="2"/>
+                        <path d="M 270 68 L 240 115 L 258 120 L 238 160" fill="none" stroke="#1D2129" stroke-width="2"/>
+                    </g>
+                    ` : ''}
+
+                    <!-- 5. ACCESSORIES (BAG / WATCH / CAP) -->
+                    ${result.acc ? `
+                    <g id="svg-acc" filter="url(#soft-shadow)">
+                        <!-- Crossbody Bag -->
+                        <path d="M 120 75 Q 190 145 235 185" stroke="#1D2129" stroke-width="4" fill="none"/>
+                        <rect x="220" y="170" width="45" height="35" rx="6" fill="${accColor}" stroke="#1D2129" stroke-width="2"/>
+                        <circle cx="242" cy="187" r="3" fill="#FFFFFF"/>
+                    </g>
+                    ` : ''}
+
+                    <!-- Hanger Symbol on Top -->
+                    <path d="M 182 50 C 182 35, 218 35, 218 50 C 218 60, 200 62, 200 75" fill="none" stroke="#8B95A1" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            `;
+
+            svgContainer.innerHTML = svgContent;
+        }
+
+        // Reset App State Function
+        function resetData() {
+            userState.selectedItems = new Set(['out_1', 'top_1', 'bot_1', 'bot_2', 'sho_2', 'acc_1']);
+            renderClosetCategories();
+            updateSelectedSummary();
+            document.getElementById('ai-placeholder').classList.remove('hidden');
+            document.getElementById('ai-output').classList.add('hidden');
+            document.getElementById('ai-loading').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
